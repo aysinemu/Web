@@ -1,0 +1,117 @@
+<h2>Realtime ONNX trên màn hình đang quay</h2>
+
+<div style="margin-bottom: 10px;">
+  <button onclick="startScreen()">🟢 Bắt đầu quay màn hình</button>
+  <button onclick="startInference()">⚡ Bật model</button>
+  <button onclick="stopInference()">🛑 Tắt model</button>
+</div>
+
+<div style="display: flex;">
+    <video id="video" autoplay muted style="
+    height: 190px; 
+    width: 400px;
+    border: 4px solid gray;
+    margin-top: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    "></video>
+
+    <canvas id="outputCanvas" style="
+    height: 190px;
+    border: 4px solid #007bff;
+    margin-top: 15px;
+    display: block;
+    max-width: 100%;
+    width: 720px;
+    box-shadow: 0 0 20px rgba(0, 123, 255, 0.6);
+    "></canvas>
+</div>
+
+<div id="resultText" style="
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 20px;
+  padding: 15px;
+  color: white;
+  background-color: #333;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+
+<script>
+  let session = null;
+  let video = null;
+  let animationFrameId = null;
+
+  const startScreen = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      video = document.getElementById("video");
+      video.srcObject = stream;
+      await video.play();
+
+      document.getElementById("resultText").innerText = "✅ Đã tương thích có thể lấy màn hình.";
+    } catch (err) {
+      console.error("Lỗi khi lấy màn hình:", err);
+      document.getElementById("resultText").innerText = "❌ Không tương thích không thể lấy màn hình.";
+    }
+  };
+
+  const loadModel = async () => {
+    if (!session) {
+      session = await ort.InferenceSession.create("/models/model.onnx");
+    }
+  };
+
+  const preprocess = (imageData) => {
+    const { data, width, height } = imageData;
+    const floatArray = new Float32Array(3 * width * height);
+    for (let i = 0; i < width * height; i++) {
+      floatArray[i] = data[i * 4] / 255.0;           // R
+      floatArray[i + width * height] = data[i * 4 + 1] / 255.0; // G
+      floatArray[i + 2 * width * height] = data[i * 4 + 2] / 255.0; // B
+    }
+    return floatArray;
+  };
+
+  const processFrame = async () => {
+    const canvas = document.getElementById("outputCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    ctx.drawImage(video, 0, 0);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const inputTensor = new ort.Tensor("float32", preprocess(imageData), [1, 3, canvas.height, canvas.width]);
+
+    const feeds = { input: inputTensor }; 
+    const results = await session.run(feeds);
+
+    const output = results[Object.keys(results)[0]]; 
+    document.getElementById("resultText").innerText = `Output: ${output.data.slice(0, 5).join(", ")}`;
+  };
+
+  const runLoop = async () => {
+    await processFrame();
+    animationFrameId = requestAnimationFrame(runLoop);
+  };
+
+  const startInference = async () => {
+    await loadModel();
+    if (video) {
+      runLoop();
+    } else {
+      alert("Bạn cần bấm 'Bắt đầu quay' trước.");
+    }
+  };
+
+  const stopInference = () => {
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+      document.getElementById("resultText").innerText = "⛔ Đã dừng inference.";
+    }
+  };
+</script>

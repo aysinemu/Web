@@ -1,0 +1,74 @@
+<form action="" method="post">
+    <div class="card">
+        <h4 class="card-header d-flex justify-content-between">
+        Tài khoản
+        </h4>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Username</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>DOB</th>
+                        <th>Chức vụ</th>
+                        <th>&nbsp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each this.users}}
+                        <tr>
+                            <td scope="row">{{id}}</td>
+                            <td>{{username}}</td>
+                            <td>{{name}}</td>
+                            <td>{{email}}</td>
+                            <td>{{dob}}</td>
+                            {{#if (eq permission 0)}}
+                                <td>Admin</td>
+                            {{/if}}
+                            {{#if (eq permission 1)}}
+                                <td>User</td>
+                            {{/if}}
+                            {{#if (inArray permission (array 1 2 3))}}
+                            <td>
+                                <button type="button" class="btn btn-danger delete-btn" data-id="{{id}}">
+                                    <i class="bi bi-person-fill-x"></i>
+                                    Xóa
+                                </button>
+                            </td>
+                            {{/if}}
+                            {{!-- <td>{{Price}}</td>    
+                            <td>{{CatID}}</td>
+                            <td>{{Quantity}}</td> --}}
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+        The End
+        </div>
+    <div>
+</form>
+<script>
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/account/del'; 
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'id';
+            input.value = id;
+
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
+</script>

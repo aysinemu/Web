@@ -1,0 +1,12 @@
+<div class="jumbotron">
+  <h1 class="display-4">Hello!</h1>
+  <p class="lead">Chào mừng bạn đã đến với trang DeepFake của mình.</p>
+  <Con class="lead">Con số may mắn của bạn hôm nay là {{this.randomNumber}}</p>
+  <hr class="my-4">
+  <p>Đang trong quá trình update web, mong các bạn thông cảm nếu bị lỗi ở đâu đó.</p>
+  {{#if auth}}
+  <a class="btn btn-primary btn-lg" href="/" role="button">Home</a>
+  {{else}}
+  <a class="btn btn-primary btn-lg" href="/account/login" role="button">Login</a>
+  {{/if}}
+</div>

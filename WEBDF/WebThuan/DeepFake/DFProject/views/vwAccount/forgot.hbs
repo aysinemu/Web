@@ -1,0 +1,37 @@
+{{#fillHtmlContent 'css'}}
+{{/fillHtmlContent}}
+{{#fillHtmlContent 'js'}}
+<script src="https://smtpjs.com/v3/smtp.js"></script>
+{{/fillHtmlContent}}
+
+<form action="" method="post">
+  <div class="card">
+    <h5 class="card-header">
+      Forgot password
+    </h5>
+    <div class="card-body">
+      <div class="form-group">
+        <label for="txtEmail">Email</label>
+        <input type="text" name="email" id="txtEmail" class="form-control" placeholder="">
+      </div>
+      <div class="form-group">
+        <label for="txtOTP">OTP</label>
+        <input type="text" name="OTP" id="txtOTP" class="form-control" placeholder="">
+      </div>
+    </div>
+    <div class="card-footer text-muted">
+      <a class="btn btn-outline-success" href="/" role="button">
+        <i class="bi bi-house-fill"></i>
+        Home
+      </a>
+      <button type="submit" class="btn btn-primary" href>
+        <i class="bi bi-mailbox-flag"></i>
+        Send OTP
+      </button>
+      <button type="submit" class="btn btn-primary" href>
+        <i class="bi bi-mailbox-flag"></i>
+        Verify OTP
+      </button>
+    </div>
+  </div>
+</form>
